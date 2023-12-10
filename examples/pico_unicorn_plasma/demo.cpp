@@ -38,6 +38,8 @@ int main() {
   // const float Tperiod=8;
   // const float Tperiod=100;
   const float Tperiod=10;
+  // const float Dperiod=24*60*60;
+  const float Dperiod=12*60*60;
   // const float Tperiod=1;
   // const float Tperiod=2;
   // const float Tperiod=4;
@@ -59,6 +61,8 @@ int main() {
     // state = (state + 1) % period;
     // state = int(std::round(mytime*1e-6 / Tperiod)) % period;
     float state = std::fmod(mytime*1e-6 / Tperiod*period, period);
+    float state15 = std::fmod(mytime*1e-6 / 15*period, period);
+    float Dstate = std::fmod(mytime*1e-6 / Dperiod*period, period);
 
     uint16_t xx = std::min(state,period-state); // triangle wave from 0 to period/2
     
@@ -75,9 +79,16 @@ int main() {
 	// uint16_t ar = (y+state+x)%16; // triangle wave from 0 to period/2
 	// uint16_t br = std::min(ar,uint16_t(16-ar)); // triangle wave from 0 to period/2-1
         // pico_unicorn.set_pixel(x, y, std::round(1+254*float(br)/float(period-1)), uint8_t(0), uint8_t(0));
+
 	float ar = std::fmod(y+state+x,16); // triangle wave from 0 to period/2
 	float br = std::min(ar,16-ar); // triangle wave from 0 to period/2-1
-        pico_unicorn.set_pixel(x, y, std::round(2+253*br/float(period-1)), uint8_t(0), uint8_t(0));	
+
+	float ag = std::fmod(7-y+Dstate+x,16); // triangle wave from 0 to period/2
+	float bg = std::min(ag,16-ag); // triangle wave from 0 to period/2-1
+	
+        // pico_unicorn.set_pixel(x, y, std::round(2+253*br/float(period-1)), uint8_t(std::round(10*bg/float(period-1))), uint8_t(0));
+	
+        pico_unicorn.set_pixel(x, y, std::round(2+253*br/float(period-1)), uint8_t(std::round(150*std::max(std::min(state15-2,16-state15-2),0.0f)/14*bg/float(period-1))), uint8_t(0));
       }
     }
     // sleep_ms(1000*looptime);
