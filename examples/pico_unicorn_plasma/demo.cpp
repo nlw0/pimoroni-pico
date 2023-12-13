@@ -22,7 +22,10 @@
 
 using namespace pimoroni;
 
-PicoUnicorn pico_unicorn;
+// PicoUnicorn<uint32_t(12), uint32_t(6), uint16_t(4)> pico_unicorn;
+PicoUnicorn<12, 1, 4> pico_unicorn;
+// PicoUnicorn<12, 6, 4> pico_unicorn;
+// PicoUnicorn<14, 1, 0> pico_unicorn;
 
 template<typename T>
 T cb(T x){return x*x*x;}
@@ -39,7 +42,8 @@ int main() {
   // const float Tperiod=100;
   const float Tperiod=10;
   // const float Dperiod=24*60*60;
-  const float Dperiod=12*60*60;
+  // const float Dperiod=12*60*60;
+  const float Dperiod=120;
   // const float Tperiod=1;
   // const float Tperiod=2;
   // const float Tperiod=4;
@@ -87,8 +91,17 @@ int main() {
 	float bg = std::min(ag,16-ag); // triangle wave from 0 to period/2-1
 	
         // pico_unicorn.set_pixel(x, y, std::round(2+253*br/float(period-1)), uint8_t(std::round(10*bg/float(period-1))), uint8_t(0));
-	
-        pico_unicorn.set_pixel(x, y, std::round(2+253*br/float(period-1)), uint8_t(std::round(150*std::max(std::min(state15-2,16-state15-2),0.0f)/14*bg/float(period-1))), uint8_t(0));
+	float gwave = std::max(std::min(state15-2, 16-state15-2),0.0f)/14.0f;
+	// float myr = 2+253*br/float(period-1);
+	// float myg = 150*std::max(std::min(Dstate-2, 16-Dstate-2),0.0f)/14*bg/float(period-1);
+	// float myg2 = std::min(myr/2, myg);
+        // pico_unicorn.set_pixel(x, y, myr, myg2, uint8_t(0));
+	float myr = br/float(period-1);
+	float myr2 = 2+253*myr;
+	float myg = 150*gwave*bg/float(period-1);
+	float myg2 = (myr*0.9+0.1) * myg;
+        pico_unicorn.set_pixel(x, y, myr2, myg2, 0);
+        // pico_unicorn.set_pixel(x, y, 0, myg2, 0);
       }
     }
     // sleep_ms(1000*looptime);

@@ -50,12 +50,18 @@ static uint32_t dma_channel;
 static uint32_t dma_ctrl_channel;
 
 namespace pimoroni {
-  PicoUnicorn* PicoUnicorn::unicorn = nullptr;
-  PIO PicoUnicorn::bitstream_pio = pio0;
-  uint PicoUnicorn::bitstream_sm = 0;
-  uint PicoUnicorn::bitstream_sm_offset = 0;
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>* PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::unicorn = nullptr;
 
-  PicoUnicorn::~PicoUnicorn() {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  PIO PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::bitstream_pio = pio0;
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  uint PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::bitstream_sm = 0;
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  uint PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::bitstream_sm_offset = 0;
+
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::~PicoUnicorn() {
     if(unicorn == this) {
       partial_teardown();
 
@@ -68,7 +74,8 @@ namespace pimoroni {
     }
   }
 
-  void PicoUnicorn::partial_teardown() {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::partial_teardown() {
     // Stop the bitstream SM
     pio_sm_set_enabled(bitstream_pio, bitstream_sm, false);
 
@@ -83,12 +90,14 @@ namespace pimoroni {
     dma_safe_abort(dma_channel);
   }
 
-  [[deprecated("Handled by constructor.")]]
-  void PicoUnicorn::init() {
+  // [[deprecated("Handled by constructor.")]]
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::init() {
     return;
   }
 
-  PicoUnicorn::PicoUnicorn() {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::PicoUnicorn() {
     if(unicorn != nullptr) {
       partial_teardown();
     }
@@ -224,7 +233,8 @@ namespace pimoroni {
     unicorn = this;
   }
 
-  void PicoUnicorn::clear() {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::clear() {
     for(uint8_t y = 0; y < HEIGHT; y++) {
       for(uint8_t x = 0; x < WIDTH; x++) {
         set_pixel(x, y, 0);
@@ -232,7 +242,16 @@ namespace pimoroni {
     }
   }
 
-  void PicoUnicorn::set_pixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::set_pixel(uint8_t x, uint8_t y, float r, float g, float b) {
+    return set_pixel(x, y,
+		     uint8_t(std::round(r)),
+		     uint8_t(std::round(g)),
+		     uint8_t(std::round(b))
+		     );
+  }
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::set_pixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b) {
     uint16_t gr = pimoroni::GAMMA_12BIT[r];
     uint16_t gg = pimoroni::GAMMA_12BIT[g];
     uint16_t gb = pimoroni::GAMMA_12BIT[b];
@@ -249,7 +268,8 @@ namespace pimoroni {
   //   set_pixel_(x, y, gr, gg, gb);
   // }
 
-  void PicoUnicorn::set_pixel_(uint8_t x, uint8_t y, uint16_t gr, uint16_t gg, uint16_t gb) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::set_pixel_(uint8_t x, uint8_t y, uint16_t gr, uint16_t gg, uint16_t gb) {
     if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) return;
 
     // make those coordinates sane
@@ -284,15 +304,18 @@ namespace pimoroni {
     }
   }
 
-  void PicoUnicorn::set_pixel(uint8_t x, uint8_t y, uint8_t v) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::set_pixel(uint8_t x, uint8_t y, uint8_t v) {
     set_pixel(x, y, v, v, v);
   }
 
-  bool PicoUnicorn::is_pressed(uint8_t button) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  bool PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::is_pressed(uint8_t button) {
     return !gpio_get(button);
   }
 
-  void PicoUnicorn::dma_safe_abort(uint channel) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::dma_safe_abort(uint channel) {
     // Tear down the DMA channel.
     // This is copied from: https://github.com/raspberrypi/pico-sdk/pull/744/commits/5e0e8004dd790f0155426e6689a66e08a83cd9fc
     uint32_t irq0_save = dma_hw->inte0 & (1u << channel);
@@ -309,7 +332,8 @@ namespace pimoroni {
     hw_set_bits(&dma_hw->inte0, irq0_save);
   }
 
-  void PicoUnicorn::update(PicoGraphics *graphics) {
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
+  void PicoUnicorn<BCD_FRAMES, DISCHARGE_FRAMES, FRAME_DELAY>::update(PicoGraphics *graphics) {
     if(unicorn == this) {
       if(graphics->pen_type == PicoGraphics::PEN_RGB888) {
         uint32_t *p = (uint32_t *)graphics->frame_buffer;
@@ -363,3 +387,9 @@ namespace pimoroni {
   }
 
 }
+
+
+// template class pimoroni::PicoUnicorn<uint32_t, uint32_t, uint16_t>;
+template class pimoroni::PicoUnicorn<14,1,0>;
+template class pimoroni::PicoUnicorn<12,1,4>;
+template class pimoroni::PicoUnicorn<12,6,4>;

@@ -5,6 +5,7 @@
 
 namespace pimoroni {
 
+  template<uint32_t BCD_FRAMES, uint32_t DISCHARGE_FRAMES, uint16_t FRAME_DELAY>
   class PicoUnicorn {
   public:
     static const int WIDTH = 16;
@@ -16,13 +17,13 @@ namespace pimoroni {
 
     static const uint32_t ROW_COUNT = 7;
     static const uint32_t ROW_BYTES = 12;
-    // static const uint32_t BCD_FRAMES = 14; // Original version
-    static const uint32_t BCD_FRAMES = 12;
-    // static const uint32_t DISCHARGE_FRAMES = 1;
-    static const uint32_t DISCHARGE_FRAMES = 6;
+    // // static const uint32_t BCD_FRAMES = 14; // Original version
+    // static const uint32_t BCD_FRAMES = 12;
+    // // static const uint32_t DISCHARGE_FRAMES = 1;
+    // static const uint32_t DISCHARGE_FRAMES = 6;
     static const uint32_t DISCHARGE_TICKS = 65535; // how long to run the discharge frame
-    // static const uint16_t FRAME_DELAY = 0; // Original version
-    static const uint16_t FRAME_DELAY = 4;
+    // // static const uint16_t FRAME_DELAY = 0; // Original version
+    // static const uint16_t FRAME_DELAY = 4;
     static const uint16_t TOTAL_FRAMES = BCD_FRAMES + DISCHARGE_FRAMES;
     static const uint32_t BITSTREAM_LENGTH = (ROW_COUNT * ROW_BYTES * TOTAL_FRAMES);
 
@@ -44,8 +45,9 @@ namespace pimoroni {
 
     void clear();
     void set_pixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b);
+    void set_pixel(uint8_t x, uint8_t y, float r, float g, float b);
     void set_pixel_(uint8_t x, uint8_t y, uint16_t r, uint16_t g, uint16_t b);
-    void set_pixel(uint8_t x, uint8_t y, int r, int g, int b);
+    // void set_pixel(uint8_t x, uint8_t y, int r, int g, int b);
     void set_pixel(uint8_t x, uint8_t y, uint8_t v);
 
     bool is_pressed(uint8_t button);
