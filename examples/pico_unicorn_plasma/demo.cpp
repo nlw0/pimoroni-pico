@@ -23,16 +23,17 @@
 using namespace pimoroni;
 
 // PicoUnicorn<uint32_t(12), uint32_t(6), uint16_t(4)> pico_unicorn;
-PicoUnicorn<12, 1, 4> pico_unicorn;
+// PicoUnicorn<12, 1, 4> pico_unicorn;
 // PicoUnicorn<12, 6, 4> pico_unicorn;
 // PicoUnicorn<14, 1, 0> pico_unicorn;
+PicoUnicorn<12,6,4, uint16_t, pimoroni::GAMMA_12BIT> pico_unicorn;
 
 template<typename T>
 T cb(T x){return x*x*x;}
 
 int main() {
   stdio_init_all();
-  pico_unicorn.init();
+  // pico_unicorn.init();
   pico_unicorn.clear();
 
   sleep_ms(1e3);
